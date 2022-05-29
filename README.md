@@ -1,5 +1,1 @@
-<style>
-	img[alt=logo] { width: 200px; }
-</style>
-
-![logo](repo/logo.png)
+<img src="repo/logo.png" alt="logo" width="200" />
