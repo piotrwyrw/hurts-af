@@ -1,2 +1,1 @@
-# HURTS AF
-A programming language designed to cause pain
+![logo](http://github.com/piotrwyrw/hurts-af/repo/logo.png)
