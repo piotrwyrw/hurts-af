@@ -1,0 +1,18 @@
+$a : 1 + 2 + 3 * 4;
+Program ->
+  Variable declaration ->
+    Identifier -> a
+    Expression ->
+      Binary Expression :: OP_ADD ->
+        Left ->
+          Integer Literal -> 1
+        Right ->
+          Binary Expression :: OP_ADD ->
+            Left ->
+              Integer Literal -> 2
+            Right ->
+              Binary Expression :: OP_MUL ->
+                Left ->
+                  Integer Literal -> 3
+                Right ->
+                  Integer Literal -> 4
