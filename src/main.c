@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 int main() {
-    FILE *f = fopen("test.pain", "r");
+    FILE *f = fopen("example.af", "r");
     if (!f) {
         printf("File does not exist.\n");
         return 0;
