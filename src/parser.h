@@ -8,6 +8,7 @@
 #include "tokenizer.h"
 
 typedef enum {
+    NODE_PROGRAM,
     NODE_LITERAL,
     NODE_BINARY_EXPR,
     NODE_VAR_DECL,
@@ -28,6 +29,10 @@ typedef struct Node Node;
 struct Node {
     NodeType type;
     union {
+        struct {
+            unsigned len;
+            Node **nodes;
+        } program;
         struct { int n; } literal;
         struct {
             Node *left;
@@ -46,6 +51,9 @@ void Node_DestroyRecursive(Node *);
 Node *Node_CreateCopy(Node *);
 
 void Node_PrintRecursive(Node *, unsigned);
+
+Node *Node_CreateProgram(Node **, unsigned);
+void Node_DestroyProgram(Node *);
 
 Node *Node_CreateLiteral(int);
 void Node_DestroyLiteral(Node *);
@@ -67,6 +75,9 @@ void Parser_DestroyParser(Parser *);
 void Parser_Consume(Parser *);
 
 // ~~~~~~~~ Parser Functions ~~~~~~~~
+
+Node *Parser_ParseAll(Parser *);
+Node *Parser_ParseAny(Parser *);
 
 Node *Parser_ParseLiteral(Parser *);
 Node *Parser_ParseAdditiveExpression(Parser *);

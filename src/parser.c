@@ -51,6 +51,9 @@ void Node_DestroyRecursive(Node *node) {
         case NODE_VAR_DECL:
             Node_DestroyVariableDeclaration(node);
             break;
+        case NODE_PROGRAM:
+            Node_DestroyProgram(node);
+            break;
     }
 }
 
@@ -69,6 +72,13 @@ Node *Node_CreateCopy(Node *node) {
 
 void Node_PrintRecursive(Node *n, unsigned dep) {
     switch (n->type) {
+        case NODE_PROGRAM:
+            PRINT("Program ->\n");
+            dep ++;
+            for (unsigned i = 0; i < n->v.program.len; i ++)
+                Node_PrintRecursive(n->v.program.nodes[i], dep);
+            dep --;
+            break;
         case NODE_LITERAL:
             PRINT("Integer Literal -> %d\n", n->v.literal.n);
             break;
@@ -99,6 +109,24 @@ void Node_PrintRecursive(Node *n, unsigned dep) {
 }
 
 #undef PRINT
+
+Node *Node_CreateProgram(Node **ns, unsigned len) {
+    Node *n = Node_CreateBase(NODE_PROGRAM);
+    n->v.program.nodes = malloc(sizeof(Node *) * len);
+    for (unsigned i = 0; i < len; i ++) {
+        n->v.program.nodes[i] = ns[i];
+    }
+    n->v.program.len = len;
+    return n;
+}
+
+void Node_DestroyProgram(Node *node) {
+    for (unsigned i = 0; i < node->v.program.len; i ++) {
+        Node_DestroyRecursive(node->v.program.nodes[i]);
+    }
+    free(node->v.program.nodes);
+    free(node);
+}
 
 Node *Node_CreateLiteral(int n) {
     Node *node = Node_CreateBase(NODE_LITERAL);
@@ -173,6 +201,32 @@ void Parser_Consume(Parser *parser) {
         printf(__VA_ARGS__);  \
         exit(0);
 
+
+Node *Parser_ParseAll(Parser *parser) {
+    unsigned len = 0;
+    const unsigned mxl = 200;
+    Node **prog = malloc(sizeof(Node *) * mxl);
+    while (1) {
+        Node *n = Parser_ParseAny(parser);
+        if (n == NULL)
+            break;
+        prog[len ++] = n;
+    }
+    Node *n = Node_CreateProgram(prog, len);
+    free(prog);
+    return n;
+}
+
+Node *Parser_ParseAny(Parser *parser) {
+    if (parser->current == NULL)
+        return NULL;
+
+    if (parser->current->type == TOK_DOLLAR)
+        return Parser_ParseVariableDeclaration(parser);
+
+    return NULL;
+}
+
 Node *Parser_ParseLiteral(Parser *parser) {
     // Current token: Integer literal (?)
     if (parser->current->type != TOK_NUM) {
@@ -246,6 +300,7 @@ Node *Parser_ParseVariableDeclaration(Parser *parser) {
     if (parser->current->type != TOK_SEMI) {
         PARSE_ERROR(parser->current, "Expected ';' after expression/");
     }
+    Parser_Consume(parser);
     return Node_CreateVariableDeclaration(id, expr);
 }
 

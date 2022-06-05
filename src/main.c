@@ -13,13 +13,16 @@ int main() {
         return 0;
     }
     char *ss = readf(f);
+
+    printf("%s\n", ss);
+
     fclose(f);
 
     Tokenizer *t = Tokenizer_CreateTokenizer(ss);
 
     Parser *p = Parser_CreateParser(t);
 
-    Node *n = Parser_ParseVariableDeclaration(p);
+    Node *n = Parser_ParseAll(p);
     Node_PrintRecursive(n, 0);
     Node_DestroyRecursive(n);
 
